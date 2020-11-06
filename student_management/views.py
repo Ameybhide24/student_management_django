@@ -6,30 +6,39 @@ from .forms import CreateUserForm
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse, HttpResponseNotFound
+from django.views.decorators.http import require_http_methods
 
 
 @login_required(login_url='login')
+@require_http_methods(['GET'])
 def student_display(request):
     results = Student.objects.all()
     return render(request, 'index.html', {'Student': results})
 
 
 @login_required(login_url='login')
+@require_http_methods(['POST'])
 def student_insert(request):
-    if request.method == 'POST':
-        if request.POST.get('student_name') and request.POST.get('student_mail') and request.POST.get('student_address') and request.POST.get('student_mobile') and request.POST.get('student_gender'):
-            savest = Student()
-            savest.student_name = request.POST.get('student_name')
-            savest.student_mail = request.POST.get('student_mail')
-            savest.student_address = request.POST.get('student_address')
-            savest.student_mobile = request.POST.get('student_mobile')
-            savest.student_gender = request.POST.get('student_gender')
-            savest.save()
-            messages.success(request, 'The Record' +
-                             savest.student_name+'is saved successfully')
-            return render(request, 'Create.html')
-    else:
+    # if request.POST.get('student_name') and request.POST.get('student_mail') and request.POST.get('student_address') and request.POST.get('student_mobile') and request.POST.get('student_gender'):
+    if request.POST:
+        savest = Student()
+        savest.student_name = request.POST.get('student_name')
+        savest.student_mail = request.POST.get('student_mail')
+        savest.student_address = request.POST.get('student_address')
+        savest.student_mobile = request.POST.get('student_mobile')
+        savest.student_gender = request.POST.get('student_gender')
+        savest.save()
+        messages.success(request, 'The Record' +
+                         savest.student_name+'is saved successfully')
         return render(request, 'Create.html')
+
+
+@login_required(login_url='login')
+@require_http_methods(['GET'])
+def get_Create(request):
+    return render(request,
+                  'Create.html')
 
 
 @login_required(login_url='login')
@@ -76,7 +85,7 @@ def loginPage(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            return redirect('student_management/')
+            return redirect('/student_management')
         else:
             messages.info(request, 'Username or Password Incorrect')
 
