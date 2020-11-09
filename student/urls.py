@@ -15,12 +15,13 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from student_management import views
+#from student_management import views
+from student_management.views import EditStudent
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('student_management/', include('student_management.urls')),
-    path('Update/<int:id>', views.student_update,
+    path('Update/<int:id>', EditStudent.as_view(),
          name='student_update'),
 
 ]

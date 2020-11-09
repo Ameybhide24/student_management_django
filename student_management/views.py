@@ -8,61 +8,64 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseNotFound
 from django.views.decorators.http import require_http_methods
+from django.views import View
 
 
-@login_required(login_url='login')
-@require_http_methods(['GET'])
-def student_display(request):
-    results = Student.objects.all()
-    return render(request, 'index.html', {'Student': results})
+class StudentView(View):
+
+    def get(self, request):
+        results = Student.objects.all()
+        return render(request, 'index.html', {'Student': results})
 
 
-@login_required(login_url='login')
-@require_http_methods(['POST'])
-def student_insert(request):
-    # if request.POST.get('student_name') and request.POST.get('student_mail') and request.POST.get('student_address') and request.POST.get('student_mobile') and request.POST.get('student_gender'):
-    if request.POST:
-        savest = Student()
-        savest.student_name = request.POST.get('student_name')
-        savest.student_mail = request.POST.get('student_mail')
-        savest.student_address = request.POST.get('student_address')
-        savest.student_mobile = request.POST.get('student_mobile')
-        savest.student_gender = request.POST.get('student_gender')
-        savest.save()
-        messages.success(request, 'The Record' +
-                         savest.student_name+'is saved successfully')
+class AddStudent(View):
+
+    def get(self, request):
         return render(request, 'Create.html')
 
-
-@login_required(login_url='login')
-@require_http_methods(['GET'])
-def get_Create(request):
-    return render(request,
-                  'Create.html')
-
-
-@login_required(login_url='login')
-def student_edit(request, id):
-    getstudentdetails = Student.objects.get(id=id)
-    return render(request, 'edit.html', {'Student': getstudentdetails})
-
-
-@login_required(login_url='login')
-def student_update(request, id):
-    student_update = Student.objects.get(id=id)
-    form = stform(request.POST, instance=student_update)
-    if form.is_valid():
-        form.save()
-        messages.success(request, 'The Student record is updated successfully')
-        return render(request, 'edit.html', {'Student': student_update})
+    def post(self, request):
+        if request.POST:
+            savest = Student()
+            savest.student_name = request.POST.get('student_name')
+            savest.student_mail = request.POST.get('student_mail')
+            savest.student_address = request.POST.get('student_address')
+            savest.student_mobile = request.POST.get('student_mobile')
+            savest.student_gender = request.POST.get('student_gender')
+            savest.save()
+            messages.success(request, 'The Record' +
+                             savest.student_name+'is saved successfully')
+            return render(request, 'Create.html')
 
 
-@login_required(login_url='login')
-def student_del(request, id):
-    delStudent = Student.objects.get(id=id)
-    delStudent.delete()
-    results = crudst.objects.all()
-    return render(request, 'index.html', {'Student': results})
+class EditStudent(View):
+
+    def get(self, request, id):
+        getstudentdetails = Student.objects.get(id=id)
+        return render(request, 'edit.html', {'Student': getstudentdetails})
+
+    def post(self, request, id):
+        student_update = Student.objects.get(id=id)
+        form = stform(request.POST, instance=student_update)
+        if form.is_valid():
+            form.save()
+            messages.success(
+                request, 'The Student record is updated successfully')
+            return render(request, 'edit.html', {'Student': student_update})
+
+
+class DeleteStudent(View):
+
+    def post(self, request, id):
+        delStudent = Student.objects.get(id=id)
+        delStudent.delete()
+        results = Student.objects.all()
+        return render(request, 'index.html', {'Student': results})
+
+    def get(self, request, id):
+        delStudent = Student.objects.get(id=id)
+        delStudent.delete()
+        results = Student.objects.all()
+        return render(request, 'index.html', {'Student': results})
 
 
 def register(request):
@@ -97,4 +100,60 @@ def logoutUser(request):
     logout(request)
     return redirect('login')
 
-# Create your views here.
+
+#
+# Function Based Views
+#
+# @login_required(login_url='login')
+# @require_http_methods(['GET'])
+# def student_display(request):
+#     results = Student.objects.all()
+#     return render(request, 'index.html', {'Student': results})
+
+
+# @login_required(login_url='login')
+# @require_http_methods(['POST'])
+# def student_insert(request):
+#     # if request.POST.get('student_name') and request.POST.get('student_mail') and request.POST.get('student_address') and request.POST.get('student_mobile') and request.POST.get('student_gender'):
+#     if request.POST:
+#         savest = Student()
+#         savest.student_name = request.POST.get('student_name')
+#         savest.student_mail = request.POST.get('student_mail')
+#         savest.student_address = request.POST.get('student_address')
+#         savest.student_mobile = request.POST.get('student_mobile')
+#         savest.student_gender = request.POST.get('student_gender')
+#         savest.save()
+#         messages.success(request, 'The Record' +
+#                          savest.student_name+'is saved successfully')
+#         return render(request, 'Create.html')
+
+
+# @login_required(login_url='login')
+# @require_http_methods(['GET'])
+# def get_Create(request):
+#     return render(request,
+#                   'Create.html')
+
+
+# @login_required(login_url='login')
+# def student_edit(request, id):
+#     getstudentdetails = Student.objects.get(id=id)
+#     return render(request, 'edit.html', {'Student': getstudentdetails})
+
+
+# @login_required(login_url='login')
+# def student_update(request, id):
+#     student_update = Student.objects.get(id=id)
+#     form = stform(request.POST, instance=student_update)
+#     if form.is_valid():
+#         form.save()
+#         messages.success(request, 'The Student record is updated successfully')
+#         return render(request, 'edit.html', {'Student': student_update})
+
+
+# @login_required(login_url='login')
+# def student_del(request, id):
+#     delStudent = Student.objects.get(id=id)
+#     delStudent.delete()
+#     results = Student.objects.all()
+#     return render(request, 'index.html', {'Student': results})

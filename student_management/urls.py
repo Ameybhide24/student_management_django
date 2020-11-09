@@ -16,15 +16,24 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from . import views
+from django.views import View
+from .views import StudentView, AddStudent, EditStudent, DeleteStudent
+from django.contrib.auth.decorators import login_required
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.student_display, name='student_display'),
-    path('CreatePage', views.get_Create, name='get_Create'),
-    path('Create', views.student_insert, name='student_insert'),
-    path('Edit/<int:id>', views.student_edit, name='student_edit'),
-    path('Update/<int:id>', views.student_update, name='student_update'),
-    path('Delete/<int:id>', views.student_del, name='student_del'),
+    path('', login_required(StudentView.as_view(),
+                            login_url='login'), name='student_display'),
+    path('CreatePage', login_required(
+        AddStudent.as_view(), login_url='login'), name='get_Create'),
+    path('Create', login_required(AddStudent.as_view(),
+                                  login_url='login'), name='student_insert'),
+    path('Edit/<int:id>', login_required(EditStudent.as_view(),
+                                         login_url='login'), name='student_edit'),
+    path('Update/<int:id>', login_required(EditStudent.as_view(),
+                                           login_url='login'), name='student_update'),
+    path('Delete/<int:id>', login_required(DeleteStudent.as_view(),
+                                           login_url='login'), name='student_del'),
     path('register', views.register, name="register"),
     path('login', views.loginPage, name="login"),
     path('logout', views.logoutUser, name="logout")
