@@ -19,23 +19,35 @@ from . import views
 from django.views import View
 from .views import StudentView, AddStudent, EditStudent, DeleteStudent
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', login_required(StudentView.as_view(),
-                            login_url='login'), name='student_display'),
-    path('CreatePage', login_required(
-        AddStudent.as_view(), login_url='login'), name='get_Create'),
-    path('Create', login_required(AddStudent.as_view(),
-                                  login_url='login'), name='student_insert'),
-    path('Edit/<int:id>', login_required(EditStudent.as_view(),
-                                         login_url='login'), name='student_edit'),
-    path('Update/<int:id>', login_required(EditStudent.as_view(),
-                                           login_url='login'), name='student_update'),
-    path('Delete/<int:id>', login_required(DeleteStudent.as_view(),
-                                           login_url='login'), name='student_del'),
+    path('', StudentView.as_view(), name='student_display'),
+    path('CreatePage', AddStudent.as_view(), name='get_Create'),
+    path('Create', csrf_exempt(AddStudent.as_view()), name='student_insert'),
+
+    path('Edit/<int:id>', csrf_exempt(EditStudent.as_view()), name='student_edit'),
+
+    path('Update/<int:id>', csrf_exempt(EditStudent.as_view()),
+         name='student_update'),
+
+    path('Delete/<int:id>', csrf_exempt(DeleteStudent.as_view()), name='student_del'),
     path('register', views.register, name="register"),
     path('login', views.loginPage, name="login"),
-    path('logout', views.logoutUser, name="logout")
+    path('logout', views.logoutUser, name="logout"),
+    # path('', login_required(StudentView.as_view(),
+    #                         login_url='login'), name='student_display'),
+    # path('CreatePage', login_required(
+    #     AddStudent.as_view(), login_url='login'), name='get_Create'),
+    # path('Create', login_required(AddStudent.as_view(),
+    #                               login_url='login'), name='student_insert'),
+    # path('Edit/<int:id>', login_required(EditStudent.as_view(),
+    #                                      login_url='login'), name='student_edit'),
+    # path('Update/<int:id>', login_required(EditStudent.as_view(),
+    #                                        login_url='login'), name='student_update'),
+    # path('Delete/<int:id>', login_required(DeleteStudent.as_view(),
+    #                                        login_url='login'), name='student_del'),
 
 ]

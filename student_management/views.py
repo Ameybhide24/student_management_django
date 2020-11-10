@@ -6,61 +6,117 @@ from .forms import CreateUserForm
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse, HttpResponseNotFound
+from django.http import HttpResponse, HttpResponseNotFound, JsonResponse
 from django.views.decorators.http import require_http_methods
 from django.views import View
+from django.core import serializers
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from .serializers import StudentSerializer
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+from rest_framework.parsers import JSONParser
+import json
 
 
 class StudentView(View):
 
+    @csrf_exempt
     def get(self, request):
         results = Student.objects.all()
-        return render(request, 'index.html', {'Student': results})
+        # return render(request, 'index.html', {'Student': results})
+        results_list = serializers.serialize('json', results)
+        # results_list = StudentSerializer(results, many=True)
+        return HttpResponse(results_list, content_type='text/json-comment-filtered')
+        # return Response(results_list)
+        # return JsonResponse(results_list, safe=False, content_type='text/json-comment-filtered')
 
 
 class AddStudent(View):
 
+    @csrf_exempt
     def get(self, request):
         return render(request, 'Create.html')
 
+    @csrf_exempt
     def post(self, request):
-        if request.POST:
-            savest = Student()
-            savest.student_name = request.POST.get('student_name')
-            savest.student_mail = request.POST.get('student_mail')
-            savest.student_address = request.POST.get('student_address')
-            savest.student_mobile = request.POST.get('student_mobile')
-            savest.student_gender = request.POST.get('student_gender')
-            savest.save()
-            messages.success(request, 'The Record' +
-                             savest.student_name+'is saved successfully')
-            return render(request, 'Create.html')
+        # if request.POST:
+        #serializers.deserialize('json', req)
+
+        req = json.loads(request.body)
+        savest = Student()
+        savest.student_name = req.get('student_name')
+        savest.student_mail = req.get('student_mail')
+        savest.student_address = req.get('student_address')
+        savest.student_mobile = req.get('student_mobile')
+        savest.student_gender = req.get('student_gender')
+        savest.save()
+
+        return HttpResponse(savest.student_name+' Saved Successfully')
+
+        # messages.success(request, 'The Record' +
+        # savest.student_name+'is saved successfully')
+
+        # req = JsonResponse().parse(request)
+        # # req_serializer = StudentSerializer(data=req)
+        # print(req)
+        # savest = Student()
+        # savest.student_name = req.get('student_name')
+        # savest.student_mail = req.get('student_mail')
+        # savest.student_address = req.get('student_address')
+        # savest.student_mobile = req.get('student_mobile')
+        # savest.student_gender = req.get('student_gender')
+        # savest.save()
+
+        # if req_serializer.is_valid():
+        #     req_serializer.save()
+        #     return JsonResponse(req_serializer.data, status=status.HTTP_201_CREATED)
+        # return JsonResponse(req_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        # return render(request, 'Create.html')
 
 
 class EditStudent(View):
 
+    @csrf_exempt
     def get(self, request, id):
         getstudentdetails = Student.objects.get(id=id)
-        return render(request, 'edit.html', {'Student': getstudentdetails})
+        # getstudentdetails_json = serializers.serialize(
+        #     'json', getstudentdetails)
+        # return render(request, 'edit.html', {'Student': getstudentdetails})
+        getstudentdetails_obj = {
+            'student_name': getstudentdetails.student_name,
+            'student_mail': getstudentdetails.student_mail,
+            'student_address': getstudentdetails.student_address,
+            'student_mobile': getstudentdetails.student_mobile,
+            'student_gender': getstudentdetails.student_gender
+        }
+        getstudentdetails_json = json.dumps(getstudentdetails_obj)
+        return HttpResponse(getstudentdetails_json, content_type='text/json-comment-filtered')
 
+    @csrf_exempt
     def post(self, request, id):
         student_update = Student.objects.get(id=id)
-        form = stform(request.POST, instance=student_update)
+        req_json = json.loads(request.body)
+        form = stform(req_json, instance=student_update)
         if form.is_valid():
             form.save()
-            messages.success(
-                request, 'The Student record is updated successfully')
-            return render(request, 'edit.html', {'Student': student_update})
+            # messages.success(
+            #     request, 'The Student record is updated successfully')
+            # return render(request, 'edit.html', {'Student': student_update})
+            return HttpResponse('Edited successfullt')
 
 
 class DeleteStudent(View):
 
+    @csrf_exempt
     def post(self, request, id):
         delStudent = Student.objects.get(id=id)
         delStudent.delete()
         results = Student.objects.all()
         return render(request, 'index.html', {'Student': results})
 
+    @csrf_exempt
     def get(self, request, id):
         delStudent = Student.objects.get(id=id)
         delStudent.delete()
