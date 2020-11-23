@@ -110,7 +110,7 @@ class CourseView(View):
                 'course_name': courseDetails.course_name,
                 'course_duration': courseDetails.course_duration,
                 'course_fees': courseDetails.course_fees,
-                'teacher_id': courseDetails.teacher_id
+                'teacher_id': courseDetails.teacher_id_id
             }
             getCoursedetails_json = json.dumps(getCoursedetails_obj)
             return HttpResponse(getCoursedetails_json, content_type='text/json-comment-filtered')
@@ -212,15 +212,25 @@ class CourseStudentRelationView(View):
             CourseStudentDetails = CourseStudentRelation.objects.filter(
                 course_id=id).values('student_id', 'student_id__student_name', 'student_id__student_mail', 'student_id__student_address', 'student_id__student_mobile', 'student_id__student_gender')
             print(CourseStudentDetails, CourseStudentDetails.query)
-            # CourseStudentList = serializers.serialize(
-            #     'json', CourseStudentDetails, field=('student_id', 'student_id__student_name'))
-            # CourseStudentList = json.dumps(
-            #     CourseStudentDetails, cls=DjangoJSONEncoder)
-            return HttpResponse(CourseStudentDetails, content_type='text/json-comment-filtered')
-            # return JsonResponse(CourseStudentList, safe=False)
+            jsonRes = []
+            for res in CourseStudentDetails:
+                jsonRes.append(res)
+                print(jsonRes)
+            # CourseStudentDetailsObj = {
+            #     # 'student_id': CourseStudentDetails.student_id,
+            #     'student_name': CourseStudentDetails.student_id__student_name,
+            #     'student_mail': CourseStudentDetails.student_id__student_mail,
+            #     'student_address': CourseStudentDetails.student_id__student_address,
+            #     'student_mobile': CourseStudentDetails.student_id__student_mobile,
+            #     'student_gender': CourseStudentDetails.student_id__student_gender
+            # }
+            # # CourseStudentList = serializers.serialize(
+            # #     'json', CourseStudentDetails, field=('student_id', 'student_id__student_name'))
+            CourseStudentList = json.dumps(jsonRes)
+            return HttpResponse(CourseStudentList, content_type='text/json-comment-filtered')
         else:
             CourseStudentDetails = CourseStudentRelation.objects.prefetch_related('student_id').prefetch_related('course_id').values(
-                'course_id', 'course_id__course_name', 'student_id', 'student_id__student_name', 'student_id__student_mail', 'student_id__student_address', 'student_id__student_mobile', 'student_id__student_gender')
+                'course_id', 'course_id__course_name', 'course_id__course_fees', 'course_id__course_fees', 'course_id__course_duration', 'course_id__teacher_id', 'course_id__teacher_id__teacher_name', 'student_id', 'student_id__student_name', 'student_id__student_mail', 'student_id__student_address', 'student_id__student_mobile', 'student_id__student_gender')
             # CourseStudentList=serializers.serialize(
             #     'json', CourseStudentDetails)
             return HttpResponse(CourseStudentDetails, content_type='text/json-comment-filtered')
