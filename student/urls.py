@@ -15,13 +15,18 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from rest_framework import routers
 #from student_management import views
 from student_management.views import EditStudent
+
+router = routers.DefaultRouter()
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('student_management/', include('student_management.urls')),
     path('Update/<int:id>', EditStudent.as_view(),
          name='student_update'),
+    # path('api/v1/', include(router.urls)),
+    # path('api/auth', include('djoser.urls.authtoken')),
 
 ]
