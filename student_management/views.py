@@ -202,10 +202,10 @@ class CourseStudentRelationView(View):
     @csrf_exempt
     def get(self, request, id=-1):
         if id != -1:
-            CourseStudentDetails = CourseStudentRelation.objects.filter(course_id=id).
-            values('student_id', 'student_id__student_name',
-                   'student_id__student_mail', 'student_id__student_address',
-                   'student_id__student_mobile', 'student_id__student_gender')
+            CourseStudentDetails = CourseStudentRelation.objects.filter(
+                course_id=id).values('student_id', 'student_id__student_name',
+                                     'student_id__student_mail', 'student_id__student_address',
+                                     'student_id__student_mobile', 'student_id__student_gender')
             jsonRes = []
             for res in CourseStudentDetails:
                 jsonRes.append(res)
@@ -213,15 +213,14 @@ class CourseStudentRelationView(View):
             return HttpResponse(CourseStudentList, content_type='text/json-comment-filtered')
         else:
             CourseStudentDetails = CourseStudentRelation.objects.prefetch_related(
-                'student_id')
-            .prefetch_related('course_id').
-            values('course_id', 'course_id__course_name', 'course_id__course_fees',
-                   'course_id__course_fees', 'course_id__course_duration',
-                   'course_id__teacher_id', 'course_id__teacher_id__teacher_name',
-                   'student_id', 'student_id__student_name', 'student_id__student_mail',
-                   'student_id__student_address', 'student_id__student_mobile',
-                   'student_id__student_gender'
-                   )
+                'student_id').prefetch_related('course_id').values('course_id',
+                                                                   'course_id__course_name', 'course_id__course_fees',
+                                                                   'course_id__course_fees', 'course_id__course_duration',
+                                                                   'course_id__teacher_id', 'course_id__teacher_id__teacher_name',
+                                                                   'student_id', 'student_id__student_name', 'student_id__student_mail',
+                                                                   'student_id__student_address', 'student_id__student_mobile',
+                                                                   'student_id__student_gender'
+                                                                   )
             return HttpResponse(CourseStudentDetails, content_type='text/json-comment-filtered')
 
 
