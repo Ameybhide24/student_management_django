@@ -40,7 +40,6 @@ class AddStudent(View):
 
     @csrf_exempt
     def post(self, request):
-        # serializers.deserialize('json', req)
         req = json.loads(request.body)
         savest = Student()
         savest.student_name = req.get('student_name')
@@ -74,9 +73,6 @@ class EditStudent(View):
         form = stform(req_json, instance=student_update)
         if form.is_valid():
             form.save()
-            # messages.success(
-            #     request, 'The Student record is updated successfully')
-            # return render(request, 'edit.html', {'Student': student_update})
             return HttpResponse('Edited successfullt')
 
 
@@ -102,8 +98,6 @@ class CourseView(View):
     @csrf_exempt
     def get(self, request, id=-1):
         if id != -1:
-            # courseDetails = Course.objects.get(course_id=id)
-            # courseList = serializers.serialize('json', courseDetails)
             courseDetails = Course.objects.get(course_id=id)
             getCoursedetails_obj = {
                 'course_id': courseDetails.course_id,
@@ -160,7 +154,6 @@ class TeacherView(View):
                 'teacher_education': teacherDetails.teacher_education,
             }
             getTeacherdetails_json = json.dumps(getTeacherdetails_obj)
-            # TeacherList = serializers.serialize('json', teacherDetails)
             return HttpResponse(getTeacherdetails_json, content_type='text/json-comment-filtered')
         else:
             teacherDetails = Teacher.objects.all()
@@ -189,7 +182,6 @@ class TeacherView(View):
 
     @csrf_exempt
     def delete(self, request, id):
-        # req = json.loads(request.body)
         teacherObj = Teacher.objects.get(teacher_id=id)
         teacherObj.delete()
         return HttpResponse('Deleted successfully')
@@ -204,35 +196,32 @@ class CourseStudentRelationView(View):
         CourseStudentObj.student_id_id = req.get('student_id')
         CourseStudentObj.course_id_id = req.get('course_id')
         CourseStudentObj.save()
-        return HttpResponse(CourseStudentObj.student_id_id+' Enrolled into '+CourseStudentObj.course_id_id + ' Successfully')
+        return HttpResponse(
+            CourseStudentObj.student_id_id+' Enrolled into '+CourseStudentObj.course_id_id + ' Successfully')
 
     @csrf_exempt
     def get(self, request, id=-1):
         if id != -1:
-            CourseStudentDetails = CourseStudentRelation.objects.filter(
-                course_id=id).values('student_id', 'student_id__student_name', 'student_id__student_mail', 'student_id__student_address', 'student_id__student_mobile', 'student_id__student_gender')
-            print(CourseStudentDetails, CourseStudentDetails.query)
+            CourseStudentDetails = CourseStudentRelation.objects.filter(course_id=id).
+            values('student_id', 'student_id__student_name',
+                   'student_id__student_mail', 'student_id__student_address',
+                   'student_id__student_mobile', 'student_id__student_gender')
             jsonRes = []
             for res in CourseStudentDetails:
                 jsonRes.append(res)
-                print(jsonRes)
-            # CourseStudentDetailsObj = {
-            #     # 'student_id': CourseStudentDetails.student_id,
-            #     'student_name': CourseStudentDetails.student_id__student_name,
-            #     'student_mail': CourseStudentDetails.student_id__student_mail,
-            #     'student_address': CourseStudentDetails.student_id__student_address,
-            #     'student_mobile': CourseStudentDetails.student_id__student_mobile,
-            #     'student_gender': CourseStudentDetails.student_id__student_gender
-            # }
-            # # CourseStudentList = serializers.serialize(
-            # #     'json', CourseStudentDetails, field=('student_id', 'student_id__student_name'))
             CourseStudentList = json.dumps(jsonRes)
             return HttpResponse(CourseStudentList, content_type='text/json-comment-filtered')
         else:
-            CourseStudentDetails = CourseStudentRelation.objects.prefetch_related('student_id').prefetch_related('course_id').values(
-                'course_id', 'course_id__course_name', 'course_id__course_fees', 'course_id__course_fees', 'course_id__course_duration', 'course_id__teacher_id', 'course_id__teacher_id__teacher_name', 'student_id', 'student_id__student_name', 'student_id__student_mail', 'student_id__student_address', 'student_id__student_mobile', 'student_id__student_gender')
-            # CourseStudentList=serializers.serialize(
-            #     'json', CourseStudentDetails)
+            CourseStudentDetails = CourseStudentRelation.objects.prefetch_related(
+                'student_id')
+            .prefetch_related('course_id').
+            values('course_id', 'course_id__course_name', 'course_id__course_fees',
+                   'course_id__course_fees', 'course_id__course_duration',
+                   'course_id__teacher_id', 'course_id__teacher_id__teacher_name',
+                   'student_id', 'student_id__student_name', 'student_id__student_mail',
+                   'student_id__student_address', 'student_id__student_mobile',
+                   'student_id__student_gender'
+                   )
             return HttpResponse(CourseStudentDetails, content_type='text/json-comment-filtered')
 
 
@@ -348,124 +337,3 @@ def loginPage(request):
 def logoutUser(request):
     logout(request)
     return redirect('login')
-
-
-# get CourseStudentView
-# CourseStudentDetails = CourseStudentRelation.objects.raw(
-#     'select * from student_management_coursestudentrelation left outer join student_management_course on student_management_coursestudentrelation.course_id_id = student_management_course.course_id;')
-# CourseStudentDetails = CourseStudentRelation.objects.filter(
-#     course_id=id)
-# CourseStudentList = serializers.serialize('json', CourseStudentDetails)
-
-
-# getstudentdetails_json = serializers.serialize(
-#     'json', getstudentdetails)
-# return render(request, 'edit.html', {'Student': getstudentdetails})
-# return render(request, 'index.html', {'Student': results})
-# results_list = StudentSerializer(results, many=True)
-# return Response(results_list)
-# return JsonResponse(results_list, safe=False, content_type='text/json-comment-filtered')
-
-
-# POST student
-    # messages.success(request, 'The Record' +
-    # savest.student_name+'is saved successfully')
-
-    # req = JsonResponse().parse(request)
-    # # req_serializer = StudentSerializer(data=req)
-    # print(req)
-    # savest = Student()
-    # savest.student_name = req.get('student_name')
-    # savest.student_mail = req.get('student_mail')
-    # savest.student_address = req.get('student_address')
-    # savest.student_mobile = req.get('student_mobile')
-    # savest.student_gender = req.get('student_gender')
-    # savest.save()
-
-    # if req_serializer.is_valid():
-    #     req_serializer.save()
-    #     return JsonResponse(req_serializer.data, status=status.HTTP_201_CREATED)
-    # return JsonResponse(req_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    # return render(request, 'Create.html')
-
-
-# Login view
-# def loginAPI(request):
-#     req = json.loads(request.body)
-#     print(req)
-#     username = req.get('username')
-#     password = req.get('password')
-#     print(username)
-#     print(password)
-#     user = authenticate(request, username=username, password=password)
-#     if user is not None:
-#         login(request, user)
-#         request.session.set_test_cookie()
-#         request.session['username'] = username
-#         # return redirect('/student_management')
-#         # return HttpResponse('Successfully Signed In '+user.get_username())
-#         return HttpResponse(user)
-#     # else:
-#     #     messages.info(request, 'Username or Password Incorrect')
-
-#     # context = {}
-#     # return render(request, 'login.html', context)
-
-
-#
-# Function Based Views
-#
-# @login_required(login_url='login')
-# @require_http_methods(['GET'])
-# def student_display(request):
-#     results = Student.objects.all()
-#     return render(request, 'index.html', {'Student': results})
-
-
-# @login_required(login_url='login')
-# @require_http_methods(['POST'])
-# def student_insert(request):
-#     # if request.POST.get('student_name') and request.POST.get('student_mail') and request.POST.get('student_address') and request.POST.get('student_mobile') and request.POST.get('student_gender'):
-#     if request.POST:
-#         savest = Student()
-#         savest.student_name = request.POST.get('student_name')
-#         savest.student_mail = request.POST.get('student_mail')
-#         savest.student_address = request.POST.get('student_address')
-#         savest.student_mobile = request.POST.get('student_mobile')
-#         savest.student_gender = request.POST.get('student_gender')
-#         savest.save()
-#         messages.success(request, 'The Record' +
-#                          savest.student_name+'is saved successfully')
-#         return render(request, 'Create.html')
-
-
-# @login_required(login_url='login')
-# @require_http_methods(['GET'])
-# def get_Create(request):
-#     return render(request,
-#                   'Create.html')
-
-
-# @login_required(login_url='login')
-# def student_edit(request, id):
-#     getstudentdetails = Student.objects.get(id=id)
-#     return render(request, 'edit.html', {'Student': getstudentdetails})
-
-
-# @login_required(login_url='login')
-# def student_update(request, id):
-#     student_update = Student.objects.get(id=id)
-#     form = stform(request.POST, instance=student_update)
-#     if form.is_valid():
-#         form.save()
-#         messages.success(request, 'The Student record is updated successfully')
-#         return render(request, 'edit.html', {'Student': student_update})
-
-
-# @login_required(login_url='login')
-# def student_del(request, id):
-#     delStudent = Student.objects.get(id=id)
-#     delStudent.delete()
-#     results = Student.objects.all()
-#     return render(request, 'index.html', {'Student': results})
